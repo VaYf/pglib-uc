@@ -2,6 +2,7 @@
 
 using JSON
 using JuMP
+using Gurobi
 
 
 println("loading data")
@@ -20,7 +21,7 @@ time_periods = 1:data["time_periods"]
 gen_startup_categories = Dict(g => 1:length(gen["startup"]) for (g,gen) in data["thermal_generators"])
 gen_pwl_points = Dict(g => 1:length(gen["piecewise_production"]) for (g,gen) in data["thermal_generators"])
 
-m = Model()
+m = Model(Gurobi.Optimizer)
 
 @variable(m, cg[thermal_gens,time_periods])
 @variable(m, pg[thermal_gens,time_periods] >= 0)
@@ -123,5 +124,4 @@ end
 
 println("optimization")
 
-using Cbc
-optimize!(m, with_optimizer(Cbc.Optimizer, logLevel=1))
+optimize!(m)
